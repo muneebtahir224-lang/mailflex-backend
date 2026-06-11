@@ -2,16 +2,26 @@
 
 import heapq
 import nltk
-from nltk.corpus import stopwords
+import os
 from nltk.tokenize import sent_tokenize, word_tokenize
 from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.feature_extraction.text import ENGLISH_STOP_WORDS
 
 
-nltk.download('punkt')
-nltk.download('punkt_tab')
+
+NLTK_DIR = "/tmp/nltk_data"
+os.makedirs(NLTK_DIR, exist_ok=True)
+nltk.data.path.append(NLTK_DIR)
 
 
-STOP_WORDS = set(stopwords.words("english"))
+def setup_nltk():
+    nltk.download("punkt", download_dir=NLTK_DIR, quiet=True)
+
+
+setup_nltk()
+
+
+STOP_WORDS = set(ENGLISH_STOP_WORDS)
 
 
 
@@ -34,14 +44,11 @@ def generate_summary(text: str, num_sentences: int = 3) -> str:
 
     sentences = sent_tokenize(text)
 
-    
     if len(sentences) <= num_sentences:
         return text
 
-    
     processed = [preprocess_sentence(s) for s in sentences]
 
-    
     valid_data = [
         (i, sent, proc)
         for i, (sent, proc) in enumerate(zip(sentences, processed))
@@ -53,7 +60,6 @@ def generate_summary(text: str, num_sentences: int = 3) -> str:
 
     indices, original_sentences, processed_sentences = zip(*valid_data)
 
-    
     try:
         vectorizer = TfidfVectorizer()
         tfidf_matrix = vectorizer.fit_transform(processed_sentences)
@@ -63,34 +69,22 @@ def generate_summary(text: str, num_sentences: int = 3) -> str:
             for i, idx in enumerate(indices)
         }
 
-        
         top_indices = heapq.nlargest(
             min(num_sentences, len(sentence_scores)),
             sentence_scores,
             key=sentence_scores.get
         )
 
-    
         ordered = [sentences[i] for i in sorted(top_indices)]
-
         return " ".join(ordered)
 
     except Exception:
-        # Safe fallback
         return " ".join(sentences[:num_sentences])
 
-
-def get_word_count(text: str) -> int:
-    """
-    Returns word count of a text.
-    """
-    if not text:
-        return 0
-    return len(text.split())
 
 
 def summarize_email(text: str, num_sentences: int = 3) -> str:
     """
-    Simple wrapper for Flask API usage.
+    Simple wrapper for API usage.
     """
     return generate_summary(text, num_sentences)
