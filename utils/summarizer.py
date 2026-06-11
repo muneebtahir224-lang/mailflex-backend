@@ -1,48 +1,55 @@
-
+"""
+Extractive Summarization Module
+TF-IDF based summarizer (Railway-safe, no fragile NLTK dependencies)
+"""
 
 import heapq
-import nltk
 import os
-from nltk.tokenize import sent_tokenize, word_tokenize
+import re
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.feature_extraction.text import ENGLISH_STOP_WORDS
 
 
-
-NLTK_DIR = "/tmp/nltk_data"
-os.makedirs(NLTK_DIR, exist_ok=True)
-nltk.data.path.append(NLTK_DIR)
-
-
-def setup_nltk():
-    nltk.download("punkt", download_dir=NLTK_DIR, quiet=True)
-
-
-setup_nltk()
-
-
+# ----------------------------
+# STOPWORDS (NO NLTK)
+# ----------------------------
 STOP_WORDS = set(ENGLISH_STOP_WORDS)
 
 
+# ----------------------------
+# SAFE SENTENCE SPLITTER (NO NLTK)
+# ----------------------------
+def split_sentences(text: str):
+    """
+    Lightweight sentence tokenizer using regex.
+    Fully stable for deployment.
+    """
+    return re.split(r'(?<=[.!?])\s+', text.strip())
 
+
+# ----------------------------
+# PREPROCESSING
+# ----------------------------
 def preprocess_sentence(sentence: str) -> str:
     """
-    Clean and preprocess a sentence for TF-IDF scoring.
+    Clean sentence for TF-IDF scoring.
     """
-    words = word_tokenize(sentence.lower())
+    words = sentence.lower().split()
     words = [w for w in words if w.isalnum() and w not in STOP_WORDS]
     return " ".join(words)
 
 
-
+# ----------------------------
+# MAIN SUMMARY FUNCTION
+# ----------------------------
 def generate_summary(text: str, num_sentences: int = 3) -> str:
     """
-    Generate extractive summary using TF-IDF sentence scoring.
+    Extractive summarization using TF-IDF sentence scoring.
     """
     if not text or not isinstance(text, str):
         return "No text provided for summarization."
 
-    sentences = sent_tokenize(text)
+    sentences = split_sentences(text)
 
     if len(sentences) <= num_sentences:
         return text
@@ -82,9 +89,11 @@ def generate_summary(text: str, num_sentences: int = 3) -> str:
         return " ".join(sentences[:num_sentences])
 
 
-
+# ----------------------------
+# FLASK WRAPPER
+# ----------------------------
 def summarize_email(text: str, num_sentences: int = 3) -> str:
     """
-    Simple wrapper for API usage.
+    API wrapper function
     """
     return generate_summary(text, num_sentences)
