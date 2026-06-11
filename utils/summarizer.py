@@ -10,10 +10,8 @@ from nltk.tokenize import sent_tokenize, word_tokenize
 from sklearn.feature_extraction.text import TfidfVectorizer
 
 
-
-def setup_nltk():
-    nltk.download("punkt", quiet=True)
-    nltk.download("stopwords", quiet=True)
+nltk.download("punkt", quiet=True)
+nltk.download("stopwords", quiet=True)
 
 
 setup_nltk()
