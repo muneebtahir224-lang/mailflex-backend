@@ -1,7 +1,4 @@
-"""
-Extractive Summarization Module
-Uses TF-IDF sentence scoring to generate summaries.
-"""
+
 
 import heapq
 import nltk
@@ -10,11 +7,10 @@ from nltk.tokenize import sent_tokenize, word_tokenize
 from sklearn.feature_extraction.text import TfidfVectorizer
 
 
-nltk.download("punkt", quiet=True)
-nltk.download("stopwords", quiet=True)
+nltk.download('punkt')
+nltk.download('punkt_tab')
 
 
-setup_nltk()
 STOP_WORDS = set(stopwords.words("english"))
 
 
