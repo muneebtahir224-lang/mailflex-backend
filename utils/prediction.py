@@ -1,6 +1,6 @@
 import os
 import joblib
-from nltk.tokenize import sent_tokenize
+import re
 
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -58,7 +58,7 @@ from collections import Counter
 
 def predict_long_email(email):
 
-    sentences = sent_tokenize(email)
+    sentences = re.split(r'(?<=[.!?])\s+', email)
 
     intents = []
     priorities = []
